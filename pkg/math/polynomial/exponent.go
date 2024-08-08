@@ -34,6 +34,10 @@ func NewPolynomialExponent(polynomial *Polynomial) *Exponent {
 		coefficients: make([]curve.Point, 0, len(polynomial.coefficients)),
 	}
 
+	if !p.IsConstant && len(polynomial.coefficients) == 0 {
+		panic("polynomial must have an even number of coefficients")
+	}
+
 	for i, c := range polynomial.coefficients {
 		if p.IsConstant && i == 0 {
 			continue
