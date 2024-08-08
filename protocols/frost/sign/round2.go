@@ -105,6 +105,7 @@ func (r *round2) Finalize(out chan<- *round.Message) (round.Session, error) {
 		_ = rhoHash.WriteAny(l)
 		rho[l] = sample.Scalar(rhoHash.Digest(), r.Group())
 	}
+	_ = rhoPreHash.WriteAny(r.round1.Y)
 
 	R := r.Group().NewPoint()
 	RShares := make(map[party.ID]curve.Point)
