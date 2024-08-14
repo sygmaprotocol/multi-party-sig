@@ -41,7 +41,7 @@ func (Secp256k1) ScalarBits() int {
 }
 
 func (Secp256k1) SafeScalarBytes() int {
-	return 32
+	return 64
 }
 
 var secp256k1OrderNat, _ = new(saferith.Nat).SetHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
