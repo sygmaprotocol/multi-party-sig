@@ -33,8 +33,16 @@ func (partyIDs IDSlice) Contains(ids ...ID) bool {
 func (partyIDs IDSlice) Valid(curve curve.Curve) bool {
 	n := len(partyIDs)
 	for i := 1; i < n; i++ {
-		if partyIDs[i-1] >= partyIDs[i] && partyIDs[i-1].Scalar(curve) != partyIDs[i].Scalar(curve) {
+		if partyIDs[i-1] >= partyIDs[i] {
 			return false
+		}
+	}
+
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			if partyIDs[i].Scalar(curve).Equal(partyIDs[j].Scalar(curve)) {
+				return false
+			}
 		}
 	}
 	return true
