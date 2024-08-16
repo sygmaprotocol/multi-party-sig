@@ -5,6 +5,8 @@ import (
 	"io"
 	"sort"
 	"strings"
+
+	"github.com/taurusgroup/multi-party-sig/pkg/math/curve"
 )
 
 type IDSlice []ID
@@ -28,10 +30,10 @@ func (partyIDs IDSlice) Contains(ids ...ID) bool {
 }
 
 // Valid returns true if the IDSlice is sorted and does not contain any duplicates.
-func (partyIDs IDSlice) Valid() bool {
+func (partyIDs IDSlice) Valid(curve curve.Curve) bool {
 	n := len(partyIDs)
 	for i := 1; i < n; i++ {
-		if partyIDs[i-1] >= partyIDs[i] {
+		if partyIDs[i-1] >= partyIDs[i] && partyIDs[i-1].Scalar(curve) != partyIDs[i].Scalar(curve) {
 			return false
 		}
 	}
