@@ -140,7 +140,7 @@ func (p *Exponent) copy() *Exponent {
 }
 
 // Equal returns true if p ≡ other.
-// Comparing exponents with differing IsConstant values will return false.
+// Comparing exponents with different IsConstant values will return false.
 func (p *Exponent) Equal(other Exponent) bool {
 	if p.IsConstant != other.IsConstant {
 		return false
