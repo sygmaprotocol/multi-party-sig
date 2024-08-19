@@ -15,7 +15,8 @@ import (
 )
 
 // This round corresponds with the steps 1-4 of Round 1, Figure 1 in the Frost paper:
-//   https://eprint.iacr.org/2020/852.pdf
+//
+//	https://eprint.iacr.org/2020/852.pdf
 type round1 struct {
 	*round.Helper
 	// taproot indicates whether or not to make taproot compatible keys.
@@ -58,6 +59,8 @@ func (r *round1) StoreMessage(round.Message) error { return nil }
 //
 // The overall goal of this round is to generate a secret value, create a polynomial
 // sharing of that value, and then send commitments to these values.
+//
+// Note: This function performs non-constant-time operations on sensitive data, which may expose timing side channels.
 func (r *round1) Finalize(out chan<- *round.Message) (round.Session, error) {
 	group := r.Group()
 	// These steps come from Figure 1, Round 1 of the Frost paper.
