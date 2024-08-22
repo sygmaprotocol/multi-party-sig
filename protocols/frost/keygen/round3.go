@@ -173,6 +173,7 @@ func (r *round3) Finalize(chan<- *round.Message) (round.Session, error) {
 		PrivateShare:       r.privateShare,
 		PublicKey:          r.publicKey,
 		VerificationShares: party.NewPointMap(r.verificationShares),
+		ChainKey:           ChainKey,
 	}), nil
 }
 
