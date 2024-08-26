@@ -35,7 +35,7 @@ func NewPolynomialExponent(polynomial *Polynomial) *Exponent {
 	}
 
 	if !p.IsConstant && len(polynomial.coefficients) == 0 {
-		panic("polynomial must have an even number of coefficients")
+		panic("polynomial must have coefficients")
 	}
 
 	for i, c := range polynomial.coefficients {
