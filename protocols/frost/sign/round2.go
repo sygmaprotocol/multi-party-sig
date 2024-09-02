@@ -100,6 +100,7 @@ func (r *round2) Finalize(out chan<- *round.Message) (round.Session, error) {
 	for _, l := range r.PartyIDs() {
 		_ = rhoPreHash.WriteAny(r.D[l], r.E[l])
 	}
+	_ = rhoPreHash.WriteAny(r.round1.Y)
 	for _, l := range r.PartyIDs() {
 		rhoHash := rhoPreHash.Clone()
 		_ = rhoHash.WriteAny(l)
