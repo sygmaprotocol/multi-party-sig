@@ -209,16 +209,34 @@ func (p *Secp256k1Point) MarshalBinary() ([]byte, error) {
 }
 
 func (p *Secp256k1Point) UnmarshalBinary(data []byte) error {
-	if len(data) != 33 {
-		return fmt.Errorf("invalid length for secp256k1Point: %d", len(data))
+	if len(data) == 1 && data[0] == 0 {
+		p.value.X.SetInt(0)
+		p.value.Y.SetInt(0)
+		p.value.Z.SetInt(0)
+		return nil
 	}
+
+	if len(data) != 33 {
+		return fmt.Errorf("secp256k1Point.UnmarshalBinarry: invalid length for secp256k1Point: %d", len(data))
+	}
+
 	p.value.Z.SetInt(1)
 	if p.value.X.SetByteSlice(data[1:]) {
 		return fmt.Errorf("secp256k1Point.UnmarshalBinary: x coordinate out of range")
 	}
-	p.value.X.Normalize()
+  p.value.X.Normalize()
 
-	if !secp256k1.DecompressY(&p.value.X, data[0] == 3, &p.value.Y) {
+	var isOdd bool
+	switch data[0] {
+	case 2:
+		isOdd = false
+	case 3:
+		isOdd = true
+	default:
+		return fmt.Errorf("secp256k1Point.UnmarshalBinary: invalid prefix %d", data[0])
+	}
+
+	if !secp256k1.DecompressY(&p.value.X, isOdd, &p.value.Y) {
 		return fmt.Errorf("secp256k1Point.UnmarshalBinary: x coordinate not on curve")
 	}
 	p.value.Y.Normalize()
