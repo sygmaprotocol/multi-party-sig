@@ -91,7 +91,7 @@ func (r *round3) StoreBroadcastMessage(msg round.Message) error {
 		return errors.New("vss polynomial has incorrect constant")
 	}
 	// check deg(Fⱼ) = t
-	if VSSPolynomial.Degree() != r.Threshold() {
+	if VSSPolynomial.MaxDegree() != r.Threshold() {
 		return errors.New("vss polynomial has incorrect degree")
 	}
 

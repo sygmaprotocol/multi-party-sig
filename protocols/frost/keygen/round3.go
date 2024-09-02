@@ -85,7 +85,7 @@ func (r *round3) StoreMessage(msg round.Message) error {
 	//
 	// aborting if the check fails."
 	expected := body.F_li.ActOnBase()
-	if r.Phi[from].Degree() > r.threshold {
+	if r.Phi[from].MaxDegree() > r.threshold {
 		return fmt.Errorf("degree of polynomial from %s is too high", from)
 	}
 	actual := r.Phi[from].Evaluate(r.SelfID().Scalar(r.Group()))
