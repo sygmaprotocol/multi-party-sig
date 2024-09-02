@@ -72,22 +72,14 @@ func (d Decommitment) Validate() error {
 func (hash *Hash) Commit(data ...interface{}) (Commitment, Decommitment, error) {
 	var err error
 	decommitment := Decommitment(make([]byte, params.SecBytes))
-
 	if _, err = rand.Read(decommitment); err != nil {
 		return nil, nil, fmt.Errorf("hash.Commit: failed to generate decommitment: %w", err)
 	}
 
-	h := hash.Clone()
-
-	for _, item := range data {
-		if err = h.WriteAny(item); err != nil {
-			return nil, nil, fmt.Errorf("hash.Commit: failed to write data: %w", err)
-		}
+	commitment, err := hash.computeCommitment(data, decommitment)
+	if err != nil {
+		return nil, nil, err
 	}
-
-	_ = h.WriteAny(decommitment)
-
-	commitment := h.Sum()
 
 	return commitment, decommitment, nil
 }
@@ -103,17 +95,25 @@ func (hash *Hash) Decommit(c Commitment, d Decommitment, data ...interface{}) bo
 		return false
 	}
 
+	computedCommitment, err := hash.computeCommitment(data, d)
+	if err != nil {
+		return false
+	}
+	return bytes.Equal(computedCommitment, c)
+}
+
+func (hash *Hash) computeCommitment(data []interface{}, d Decommitment) (Commitment, error) {
 	h := hash.Clone()
 
 	for _, item := range data {
-		if err = h.WriteAny(item); err != nil {
-			return false
+		if err := h.WriteAny(item); err != nil {
+			return nil, err
 		}
 	}
 
-	_ = h.WriteAny(d)
-
-	computedCommitment := h.Sum()
-
-	return bytes.Equal(computedCommitment, c)
+	err := h.WriteAny(d)
+	if err != nil {
+		return nil, err
+	}
+	return h.Sum(), nil
 }

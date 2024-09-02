@@ -152,8 +152,8 @@ func (p *Proof) IsValid() bool {
 
 func EmptyProof(group curve.Curve) *Proof {
 	return &Proof{
-		C: Commitment{C: group.NewPoint()},
-		Z: Response{group: group, Z: group.NewScalar()},
+		C: *EmptyCommitment(group),
+		Z: *EmptyResponse(group),
 	}
 }
 
