@@ -16,6 +16,10 @@ type Polynomial struct {
 // NewPolynomial generates a Polynomial f(X) = secret + a₁⋅X + … + aₜ⋅Xᵗ,
 // with coefficients in ℤₚ, and degree t.
 func NewPolynomial(group curve.Curve, degree int, constant curve.Scalar) *Polynomial {
+	if degree < 0 {
+		panic("degree must be non-negative")
+	}
+
 	polynomial := &Polynomial{
 		group:        group,
 		coefficients: make([]curve.Scalar, degree+1),

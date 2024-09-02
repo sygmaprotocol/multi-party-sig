@@ -60,6 +60,9 @@ func (h *TwoPartyHandler) Listen() <-chan *Message {
 }
 
 func (h *TwoPartyHandler) Stop() {
+	h.mtx.Lock()
+	defer h.mtx.Unlock()
+
 	if h.err != nil || h.result != nil {
 		h.abort(errors.New("aborted by user"))
 	}

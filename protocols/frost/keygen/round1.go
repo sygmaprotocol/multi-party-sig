@@ -59,6 +59,8 @@ func (r *round1) StoreMessage(round.Message) error { return nil }
 //
 // The overall goal of this round is to generate a secret value, create a polynomial
 // sharing of that value, and then send commitments to these values.
+//
+// Note: This function performs non-constant-time operations on sensitive data, which may expose timing side channels.
 func (r *round1) Finalize(out chan<- *round.Message) (round.Session, error) {
 	group := r.Group()
 	// These steps come from Figure 1, Round 1 of the Frost paper.
@@ -116,7 +118,7 @@ func (r *round1) Finalize(out chan<- *round.Message) (round.Session, error) {
 	if err != nil {
 		return r, fmt.Errorf("failed to sample ChainKey")
 	}
-	commitment, decommitment, err := r.HashForID(r.SelfID()).Commit(c_i)
+	commitment, decommitment, err := r.HashForID(r.SelfID()).Commit("c_i", c_i)
 	if err != nil {
 		return r, fmt.Errorf("failed to commit to chain key")
 	}

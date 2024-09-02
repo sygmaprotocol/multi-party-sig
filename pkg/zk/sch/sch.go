@@ -57,12 +57,14 @@ func NewRandomness(rand io.Reader, group curve.Curve, gen curve.Point) *Randomne
 }
 
 func challenge(hash *hash.Hash, group curve.Curve, commitment *Commitment, public, gen curve.Point) (e curve.Scalar, err error) {
-	err = hash.WriteAny(commitment.C, public, gen)
+	err = hash.WriteAny("a_i0", commitment.C, public, gen)
 	e = sample.Scalar(hash.Digest(), group)
 	return
 }
 
-// Prove creates a Response = Randomness + H(..., Commitment, public)•secret (mod p).
+// Prove creates a Response = Randomness + H(..., domain('a_i0'), Commitment, public)•secret (mod p).
+//
+// Note: This function performs non-constant-time operations on sensitive data, which may expose timing side channels.
 func (r *Randomness) Prove(hash *hash.Hash, public curve.Point, secret curve.Scalar, gen curve.Point) *Response {
 	if gen == nil {
 		gen = public.Curve().NewBasePoint()
@@ -153,8 +155,8 @@ func (p *Proof) IsValid() bool {
 
 func EmptyProof(group curve.Curve) *Proof {
 	return &Proof{
-		C: Commitment{C: group.NewPoint()},
-		Z: Response{group: group, Z: group.NewScalar()},
+		C: *EmptyCommitment(group),
+		Z: *EmptyResponse(group),
 	}
 }
 

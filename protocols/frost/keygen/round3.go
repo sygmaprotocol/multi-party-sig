@@ -12,7 +12,8 @@ import (
 )
 
 // This round corresponds with steps 2-4 of Round 2, Figure 1 in the Frost paper:
-//   https://eprint.iacr.org/2020/852.pdf
+//
+//	https://eprint.iacr.org/2020/852.pdf
 type round3 struct {
 	*round2
 
@@ -84,6 +85,9 @@ func (r *round3) StoreMessage(msg round.Message) error {
 	//
 	// aborting if the check fails."
 	expected := body.F_li.ActOnBase()
+	if r.Phi[from].Degree() > r.threshold {
+		return fmt.Errorf("degree of polynomial from %s is too high", from)
+	}
 	actual := r.Phi[from].Evaluate(r.SelfID().Scalar(r.Group()))
 	if !expected.Equal(actual) {
 		return fmt.Errorf("VSS failed to validate")
@@ -95,6 +99,8 @@ func (r *round3) StoreMessage(msg round.Message) error {
 }
 
 // Finalize implements round.Round.
+//
+// Note: This function performs non-constant-time operations on sensitive data, which may expose timing side channels.
 func (r *round3) Finalize(chan<- *round.Message) (round.Session, error) {
 	ChainKey := types.EmptyRID()
 	for _, j := range r.PartyIDs() {
@@ -109,6 +115,7 @@ func (r *round3) Finalize(chan<- *round.Message) (round.Session, error) {
 	for l, f_li := range r.shareFrom {
 		r.privateShare.Add(f_li)
 		// TODO: Maybe actually clear this in a better way
+		r.shareFrom[l].UnmarshalBinary(make([]byte, 32))
 		delete(r.shareFrom, l)
 	}
 
@@ -162,6 +169,7 @@ func (r *round3) Finalize(chan<- *round.Message) (round.Session, error) {
 			PrivateShare:       r.privateShare.(*curve.Secp256k1Scalar),
 			PublicKey:          YSecp.XBytes()[:],
 			VerificationShares: secpVerificationShares,
+			ChainKey:           ChainKey,
 		}), nil
 	}
 
@@ -171,6 +179,7 @@ func (r *round3) Finalize(chan<- *round.Message) (round.Session, error) {
 		PrivateShare:       r.privateShare,
 		PublicKey:          r.publicKey,
 		VerificationShares: party.NewPointMap(r.verificationShares),
+		ChainKey:           ChainKey,
 	}), nil
 }
 

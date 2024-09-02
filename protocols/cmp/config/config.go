@@ -80,6 +80,7 @@ func (c *Config) PartyIDs() party.IDSlice {
 }
 
 // WriteTo implements io.WriterTo interface.
+// Note: this writes each id concatenated with its len
 func (c *Config) WriteTo(w io.Writer) (total int64, err error) {
 	if c == nil {
 		return 0, io.ErrUnexpectedEOF
@@ -181,7 +182,7 @@ func (c *Config) CanSign(signers party.IDSlice) bool {
 	}
 
 	// check for duplicates
-	if !signers.Valid() {
+	if !signers.Valid(c.Group) {
 		return false
 	}
 
