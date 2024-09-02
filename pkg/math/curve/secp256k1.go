@@ -125,6 +125,8 @@ func (s *Secp256k1Scalar) Mul(that Scalar) Scalar {
 	return s
 }
 
+// Invert computes the multiplicative inverse of the scalar value.
+// Returns the scalar itself if the inverse exists, or nil if the inverse does not exist.
 func (s *Secp256k1Scalar) Invert() Scalar {
 	s.value.InverseNonConst()
 	return s

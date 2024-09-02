@@ -182,7 +182,7 @@ func (c *Config) CanSign(signers party.IDSlice) bool {
 	}
 
 	// check for duplicates
-	if !signers.Valid() {
+	if !signers.Valid(c.Group) {
 		return false
 	}
 
