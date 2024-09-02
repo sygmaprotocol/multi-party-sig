@@ -114,6 +114,7 @@ func (r *round3) Finalize(chan<- *round.Message) (round.Session, error) {
 	for l, f_li := range r.shareFrom {
 		r.privateShare.Add(f_li)
 		// TODO: Maybe actually clear this in a better way
+		r.shareFrom[l].UnmarshalBinary(make([]byte, 32))
 		delete(r.shareFrom, l)
 	}
 
