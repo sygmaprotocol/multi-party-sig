@@ -216,9 +216,12 @@ func (p *Secp256k1Point) UnmarshalBinary(data []byte) error {
 	if p.value.X.SetByteSlice(data[1:]) {
 		return fmt.Errorf("secp256k1Point.UnmarshalBinary: x coordinate out of range")
 	}
+	p.value.X.Normalize()
+
 	if !secp256k1.DecompressY(&p.value.X, data[0] == 3, &p.value.Y) {
 		return fmt.Errorf("secp256k1Point.UnmarshalBinary: x coordinate not on curve")
 	}
+	p.value.Y.Normalize()
 	return nil
 }
 
