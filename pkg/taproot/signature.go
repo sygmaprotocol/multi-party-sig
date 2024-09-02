@@ -2,6 +2,7 @@ package taproot
 
 import (
 	"bytes"
+	"crypto/rand"
 	"crypto/sha256"
 	"encoding/binary"
 	"fmt"
@@ -88,6 +89,11 @@ type Signature []byte
 // signatureCounter is an atomic counter used to add some fault
 // resistance in case we don't use a source of randomness for Sign
 var signatureCounter uint64
+
+// init initializes `signatureCounter` to a random value
+func init() {
+	binary.Read(rand.Reader, binary.BigEndian, &signatureCounter)
+}
 
 // Sign uses a secret key to create a new signature.
 //
