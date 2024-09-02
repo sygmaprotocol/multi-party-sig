@@ -11,7 +11,8 @@ import (
 )
 
 // This round sort of corresponds with Figure 2 of the Frost paper:
-//   https://eprint.iacr.org/2020/852.pdf
+//
+//	https://eprint.iacr.org/2020/852.pdf
 //
 // The main difference is that instead of having a separate pre-processing step,
 // we instead have an additional round at the start of the signing step.
@@ -51,6 +52,8 @@ func (r *round1) StoreMessage(round.Message) error  { return nil }
 const deriveHashKeyContext = "github.com/taurusgroup/multi-party-sig/frost 2021-07-30T09:48+00:00 Derive hash Key"
 
 // Finalize implements round.Round.
+//
+// Note: This function performs non-constant-time operations on sensitive data, which may expose timing side channels.
 func (r *round1) Finalize(out chan<- *round.Message) (round.Session, error) {
 	// We can think of this as roughly implementing Figure 2. The idea is
 	// to generate two nonces (dᵢ, eᵢ) in Z/(q)ˣ, then two commitments

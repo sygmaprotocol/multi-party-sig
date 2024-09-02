@@ -100,6 +100,8 @@ func (r *round3) StoreMessage(msg round.Message) error {
 }
 
 // Finalize implements round.Round.
+//
+// Note: This function performs non-constant-time operations on sensitive data, which may expose timing side channels.
 func (r *round3) Finalize(chan<- *round.Message) (round.Session, error) {
 	ChainKey := types.EmptyRID()
 	for _, j := range r.PartyIDs() {

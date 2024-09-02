@@ -63,6 +63,8 @@ func challenge(hash *hash.Hash, group curve.Curve, commitment *Commitment, publi
 }
 
 // Prove creates a Response = Randomness + H(..., domain('a_i0'), Commitment, public)•secret (mod p).
+//
+// Note: This function performs non-constant-time operations on sensitive data, which may expose timing side channels.
 func (r *Randomness) Prove(hash *hash.Hash, public curve.Point, secret curve.Scalar, gen curve.Point) *Response {
 	if gen == nil {
 		gen = public.Curve().NewBasePoint()
