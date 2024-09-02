@@ -80,6 +80,7 @@ func (c *Config) PartyIDs() party.IDSlice {
 }
 
 // WriteTo implements io.WriterTo interface.
+// Note: this writes each id concatenated with its len
 func (c *Config) WriteTo(w io.Writer) (total int64, err error) {
 	if c == nil {
 		return 0, io.ErrUnexpectedEOF
