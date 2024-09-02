@@ -2,6 +2,7 @@ package party
 
 import (
 	"encoding/binary"
+	"errors"
 	"io"
 	"sort"
 	"strings"
@@ -90,6 +91,10 @@ func (partyIDs IDSlice) WriteTo(w io.Writer) (int64, error) {
 	}
 	nAll := int64(4)
 	for _, id := range partyIDs {
+		_, err = writeIdLen(w, id)
+		if err != nil {
+			return nAll, err
+		}
 		n, err = w.Write([]byte(id))
 		nAll += int64(n)
 		if err != nil {
@@ -98,6 +103,16 @@ func (partyIDs IDSlice) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	return nAll, nil
+}
+
+func writeIdLen(w io.Writer, id ID) (int, error) {
+	if len(id) > 255 {
+		return 0, errors.New("party ID too long")
+	}
+
+	lenIdBytes := make([]byte, 1)
+	lenIdBytes[0] = byte(len(id))
+	return w.Write(lenIdBytes)
 }
 
 // Domain implements hash.WriterToWithDomain, and separates this type within hash.Hash.

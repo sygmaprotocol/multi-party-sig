@@ -41,7 +41,7 @@ func (Secp256k1) ScalarBits() int {
 }
 
 func (Secp256k1) SafeScalarBytes() int {
-	return 32
+	return 64
 }
 
 var secp256k1OrderNat, _ = new(saferith.Nat).SetHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
@@ -224,6 +224,7 @@ func (p *Secp256k1Point) UnmarshalBinary(data []byte) error {
 	if p.value.X.SetByteSlice(data[1:]) {
 		return fmt.Errorf("secp256k1Point.UnmarshalBinary: x coordinate out of range")
 	}
+  p.value.X.Normalize()
 
 	var isOdd bool
 	switch data[0] {
@@ -238,6 +239,7 @@ func (p *Secp256k1Point) UnmarshalBinary(data []byte) error {
 	if !secp256k1.DecompressY(&p.value.X, isOdd, &p.value.Y) {
 		return fmt.Errorf("secp256k1Point.UnmarshalBinary: x coordinate not on curve")
 	}
+	p.value.Y.Normalize()
 	return nil
 }
 
