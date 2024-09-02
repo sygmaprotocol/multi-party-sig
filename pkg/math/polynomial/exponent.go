@@ -34,6 +34,10 @@ func NewPolynomialExponent(polynomial *Polynomial) *Exponent {
 		coefficients: make([]curve.Point, 0, len(polynomial.coefficients)),
 	}
 
+	if !p.IsConstant && len(polynomial.coefficients) == 0 {
+		panic("polynomial must have coefficients")
+	}
+
 	for i, c := range polynomial.coefficients {
 		if p.IsConstant && i == 0 {
 			continue
@@ -86,8 +90,8 @@ func (p *Exponent) evaluateClassic(x curve.Scalar) curve.Point {
 	return result
 }
 
-// Degree returns the degree t of the polynomial.
-func (p *Exponent) Degree() int {
+// MaxDegree returns the max degree of the polynomial.
+func (p *Exponent) MaxDegree() int {
 	if p.IsConstant {
 		return len(p.coefficients)
 	}
@@ -140,10 +144,12 @@ func (p *Exponent) copy() *Exponent {
 }
 
 // Equal returns true if p ≡ other.
+// Comparing exponents with different IsConstant values will return false.
 func (p *Exponent) Equal(other Exponent) bool {
 	if p.IsConstant != other.IsConstant {
 		return false
 	}
+
 	if len(p.coefficients) != len(other.coefficients) {
 		return false
 	}

@@ -96,10 +96,12 @@ func (r *round2) Finalize(out chan<- *round.Message) (round.Session, error) {
 	// This calculates H(m, B), allowing us to avoid re-hashing this data for
 	// each extra party l.
 	rhoPreHash := hash.New()
+	_ = rhoPreHash.WriteAny("rho_i")
 	_ = rhoPreHash.WriteAny(r.M)
 	for _, l := range r.PartyIDs() {
 		_ = rhoPreHash.WriteAny(r.D[l], r.E[l])
 	}
+	_ = rhoPreHash.WriteAny(r.round1.Y)
 	for _, l := range r.PartyIDs() {
 		rhoHash := rhoPreHash.Clone()
 		_ = rhoHash.WriteAny(l)
@@ -136,7 +138,7 @@ func (r *round2) Finalize(out chan<- *round.Message) (round.Session, error) {
 		c = r.Group().NewScalar().SetNat(new(saferith.Nat).SetBytes(cHash))
 	} else {
 		cHash := hash.New()
-		_ = cHash.WriteAny(R, r.Y, r.M)
+		_ = cHash.WriteAny("c_challange", R, r.Y, r.M)
 		c = sample.Scalar(cHash.Digest(), r.Group())
 	}
 

@@ -2,9 +2,12 @@ package party
 
 import (
 	"encoding/binary"
+	"errors"
 	"io"
 	"sort"
 	"strings"
+
+	"github.com/taurusgroup/multi-party-sig/pkg/math/curve"
 )
 
 type IDSlice []ID
@@ -28,11 +31,19 @@ func (partyIDs IDSlice) Contains(ids ...ID) bool {
 }
 
 // Valid returns true if the IDSlice is sorted and does not contain any duplicates.
-func (partyIDs IDSlice) Valid() bool {
+func (partyIDs IDSlice) Valid(curve curve.Curve) bool {
 	n := len(partyIDs)
 	for i := 1; i < n; i++ {
 		if partyIDs[i-1] >= partyIDs[i] {
 			return false
+		}
+	}
+
+	for i := 0; i < n; i++ {
+		for j := i + 1; j < n; j++ {
+			if partyIDs[i].Scalar(curve).Equal(partyIDs[j].Scalar(curve)) {
+				return false
+			}
 		}
 	}
 	return true
@@ -90,6 +101,10 @@ func (partyIDs IDSlice) WriteTo(w io.Writer) (int64, error) {
 	}
 	nAll := int64(4)
 	for _, id := range partyIDs {
+		_, err = writeIdLen(w, id)
+		if err != nil {
+			return nAll, err
+		}
 		n, err = w.Write([]byte(id))
 		nAll += int64(n)
 		if err != nil {
@@ -98,6 +113,16 @@ func (partyIDs IDSlice) WriteTo(w io.Writer) (int64, error) {
 	}
 
 	return nAll, nil
+}
+
+func writeIdLen(w io.Writer, id ID) (int, error) {
+	if len(id) > 255 {
+		return 0, errors.New("party ID too long")
+	}
+
+	lenIdBytes := make([]byte, 1)
+	lenIdBytes[0] = byte(len(id))
+	return w.Write(lenIdBytes)
 }
 
 // Domain implements hash.WriterToWithDomain, and separates this type within hash.Hash.

@@ -118,7 +118,7 @@ func (r *round1) Finalize(out chan<- *round.Message) (round.Session, error) {
 	if err != nil {
 		return r, fmt.Errorf("failed to sample ChainKey")
 	}
-	commitment, decommitment, err := r.HashForID(r.SelfID()).Commit(c_i)
+	commitment, decommitment, err := r.HashForID(r.SelfID()).Commit("c_i", c_i)
 	if err != nil {
 		return r, fmt.Errorf("failed to commit to chain key")
 	}

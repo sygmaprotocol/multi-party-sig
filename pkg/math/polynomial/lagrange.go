@@ -7,11 +7,15 @@ import (
 )
 
 // Lagrange returns the Lagrange coefficients at 0 for all parties in the interpolation domain.
+//
+// The interpolation domain party IDs supplied to this function must be valid.
 func Lagrange(group curve.Curve, interpolationDomain []party.ID) map[party.ID]curve.Scalar {
 	return LagrangeFor(group, interpolationDomain, interpolationDomain...)
 }
 
 // LagrangeFor returns the Lagrange coefficients at 0 for all parties in the given subset.
+//
+// The interpolation domain party IDs supplied to this function must be valid.
 func LagrangeFor(group curve.Curve, interpolationDomain []party.ID, subset ...party.ID) map[party.ID]curve.Scalar {
 	// numerator = x₀ * … * xₖ
 	scalars, numerator := getScalarsAndNumerator(group, interpolationDomain)
@@ -24,6 +28,8 @@ func LagrangeFor(group curve.Curve, interpolationDomain []party.ID, subset ...pa
 }
 
 // LagrangeSingle returns the lagrange coefficient at 0 of the party with index j.
+//
+// The interpolation domain party IDs supplied to this function must be valid.
 func LagrangeSingle(group curve.Curve, interpolationDomain []party.ID, j party.ID) curve.Scalar {
 	return LagrangeFor(group, interpolationDomain, j)[j]
 }

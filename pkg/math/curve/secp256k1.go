@@ -41,7 +41,7 @@ func (Secp256k1) ScalarBits() int {
 }
 
 func (Secp256k1) SafeScalarBytes() int {
-	return 32
+	return 64
 }
 
 var secp256k1OrderNat, _ = new(saferith.Nat).SetHex("FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFEBAAEDCE6AF48A03BBFD25E8CD0364141")
@@ -125,6 +125,8 @@ func (s *Secp256k1Scalar) Mul(that Scalar) Scalar {
 	return s
 }
 
+// Invert computes the multiplicative inverse of the scalar value.
+// Returns the scalar itself if the inverse exists, or nil if the inverse does not exist.
 func (s *Secp256k1Scalar) Invert() Scalar {
 	s.value.InverseNonConst()
 	return s
@@ -209,16 +211,37 @@ func (p *Secp256k1Point) MarshalBinary() ([]byte, error) {
 }
 
 func (p *Secp256k1Point) UnmarshalBinary(data []byte) error {
-	if len(data) != 33 {
-		return fmt.Errorf("invalid length for secp256k1Point: %d", len(data))
+	if len(data) == 1 && data[0] == 0 {
+		p.value.X.SetInt(0)
+		p.value.Y.SetInt(0)
+		p.value.Z.SetInt(0)
+		return nil
 	}
+
+	if len(data) != 33 {
+		return fmt.Errorf("secp256k1Point.UnmarshalBinarry: invalid length for secp256k1Point: %d", len(data))
+	}
+
 	p.value.Z.SetInt(1)
 	if p.value.X.SetByteSlice(data[1:]) {
 		return fmt.Errorf("secp256k1Point.UnmarshalBinary: x coordinate out of range")
 	}
-	if !secp256k1.DecompressY(&p.value.X, data[0] == 3, &p.value.Y) {
+  p.value.X.Normalize()
+
+	var isOdd bool
+	switch data[0] {
+	case 2:
+		isOdd = false
+	case 3:
+		isOdd = true
+	default:
+		return fmt.Errorf("secp256k1Point.UnmarshalBinary: invalid prefix %d", data[0])
+	}
+
+	if !secp256k1.DecompressY(&p.value.X, isOdd, &p.value.Y) {
 		return fmt.Errorf("secp256k1Point.UnmarshalBinary: x coordinate not on curve")
 	}
+	p.value.Y.Normalize()
 	return nil
 }
 
