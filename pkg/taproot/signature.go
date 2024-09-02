@@ -86,13 +86,13 @@ const SignatureLen = 64
 // can verify the integrity of the signature.
 type Signature []byte
 
-// signatureCounter is an atomic counter used to add some fault
+// SignatureCounter is an atomic counter used to add some fault
 // resistance in case we don't use a source of randomness for Sign
-var signatureCounter atomic.Uint64
+var SignatureCounter atomic.Uint64
 
-// init initializes `signatureCounter` to a random value
+// init initializes `SignatureCounter` to a random value
 func init() {
-	binary.Read(rand.Reader, binary.BigEndian, &signatureCounter)
+	binary.Read(rand.Reader, binary.BigEndian, &SignatureCounter)
 }
 
 // Sign uses a secret key to create a new signature.
@@ -133,7 +133,7 @@ func (sk SecretKey) Sign(rand io.Reader, m []byte) (Signature, error) {
 		}
 	} else {
 		// Need to use atomics, because of potential multi-threading
-		ctr := signatureCounter.Add(1)
+		ctr := SignatureCounter.Add(1)
 		binary.BigEndian.PutUint64(a, ctr)
 	}
 
